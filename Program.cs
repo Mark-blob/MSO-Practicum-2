@@ -7,6 +7,13 @@ public class Program
     //stored program
     static List<ICommand> currentProgram = null;
     static List<string> currentRawCommands = null;
+    static List<string> currentRawLines = null;
+
+    //stored data
+    static int NrRepeats = 0;
+    static int NrNests = 0;
+    static int NrCommands = 0;
+
 
     static void Main()
     {
@@ -38,7 +45,7 @@ public class Program
                     RunCurrentProgram();
                     break;
                 case "4":
-                    ShowProgramMetrics(); //
+                    RunProgramMetrics(); //
                     break;
                 case "5":
                     running = false;
@@ -51,12 +58,15 @@ public class Program
         }
     }
 
-    private static void ShowProgramMetrics()
+    private static void RunProgramMetrics()
     {
-        throw new NotImplementedException(); // MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATS
+        if (currentProgram != null && currentRawCommands != null && currentRawLines != null)
+        GetMetrics();
+
+        else Console.WriteLine("No program loaded.");
     }
 
-    private static void RunCurrentProgram()
+    private static void RunCurrentProgram() //metrics or normal
     {
         if (currentProgram == null)
         {
@@ -65,7 +75,7 @@ public class Program
         }
 
         Console.WriteLine();
-        ExecuteProgram(currentRawCommands, currentProgram);
+        ExecuteProgram();
     }
 
     static void LoadFromFile()
@@ -73,7 +83,11 @@ public class Program
         Console.Write("Enter full path to the program file: ");
         string path = Console.ReadLine();
         if (File.Exists(path))
+        {
             ExecuteProgramFromTxt(path);
+
+            Console.WriteLine("Custom program loaded.");
+        }
         else
             Console.WriteLine("File not found.");
     }
@@ -106,6 +120,7 @@ public class Program
 
         currentRawCommands = InputReader.GetCommandsFromLines(lines);
         currentProgram = InputReader.ParseCommands(currentRawCommands);
+        currentRawLines = lines;
         Console.WriteLine("Example program loaded.");
     }
 
@@ -117,23 +132,32 @@ public class Program
         //store
         currentRawCommands = InputReader.GetCommandsFromLines(lines);
         currentProgram = InputReader.ParseCommands(currentRawCommands);
+        currentRawLines = lines;
         
         //ExecuteProgram(lines);
     }
 
-    static void ExecuteProgram(List<string> rawCommands, List<ICommand> commands)
+    static void ExecuteProgram()
     {
-        for (int i = 0; i < commands.Count; i++)
+
+        for (int i = 0; i < currentProgram.Count; i++)
         {
-            commands[i].Execute(character);
+            currentProgram[i].Execute(character);
         }
 
-        for (int i = 0; i < rawCommands.Count; i++)
+        for (int i = 0; i < currentRawCommands.Count; i++)
         {
-            Console.Write(rawCommands[i] + ", ");
+            Console.Write(currentRawCommands[i] + ", ");
         }
 
         Console.WriteLine($"\n-> End state ({character.Position.X},{character.Position.Y}) facing {character.Direction.ToString()}");
+    }
+
+    static void GetMetrics()
+    {
+        Console.WriteLine("Max nesting: " + Metrics.MaxNesting(currentRawLines));
+        Console.WriteLine("Number of command: " + Metrics.NumberOfCommands(currentRawCommands));
+        Console.WriteLine("Number of repeats: " + Metrics.NumberOfRepeats(currentRawLines));
     }
 }
 
