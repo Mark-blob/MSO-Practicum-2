@@ -9,12 +9,6 @@ public class Program
     static List<string> currentRawCommands = null;
     static List<string> currentRawLines = null;
 
-    //stored data
-    static int NrRepeats = 0;
-    static int NrNests = 0;
-    static int NrCommands = 0;
-
-
     static void Main()
     {
         //Test
